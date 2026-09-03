@@ -30,7 +30,7 @@ android {
         namespace = "com.example.flutter_bunny_video_player"
     }
 
-    compileSdk = 35
+    compileSdk = 36
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_1_8
@@ -72,8 +72,13 @@ android {
 }
 
 dependencies {
-    implementation("com.github.RootHex200.bunny-stream-android:bunny-stream-api:20e8989bec")
-    implementation("com.github.RootHex200.bunny-stream-android:bunny-stream-player:20e8989bec")
+    implementation("com.github.RootHex200.bunny-stream-android:bunny-stream-api:3406ce5b96")
+    implementation("com.github.RootHex200.bunny-stream-android:bunny-stream-player:3406ce5b96")
+
+    // Explicit rather than transitive: the SDK exposes its offline API behind
+    // media3's @UnstableApi, so this module needs the annotation on its own
+    // compile classpath to opt in. Version tracks the SDK's.
+    implementation("androidx.media3:media3-common:1.8.0")
 
     implementation 'androidx.appcompat:appcompat:1.7.1'
     implementation 'com.google.android.material:material:1.12.0'

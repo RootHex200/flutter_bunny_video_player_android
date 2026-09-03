@@ -7,7 +7,7 @@ plugins {
 
 android {
     namespace = "com.example.flutter_bunny_video_player_example"
-    compileSdk = 35
+    compileSdk = 36
     ndkVersion = flutter.ndkVersion
 
     compileOptions {
