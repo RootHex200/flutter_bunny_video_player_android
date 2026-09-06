@@ -58,11 +58,14 @@ class BunnyVideoPlatformView(
         val referer = creationParams?.get("referer") as? String
         val isPortrait= creationParams?.get("isPortrait") as? Boolean
         val isScreenShotProtectEnable = creationParams?.get("isScreenShotProtectEnable") as? Boolean
-        // Passing this through is what makes offline playback work at all: the
-        // SDK reads the encrypted cache when the key is fully downloaded, and
-        // falls back to stored metadata when the network is gone. Dropping it
-        // here silently turned every play into a streaming play.
-        val cacheKey = creationParams?.get("cacheKey") as? String
+        // Only reached when the caller asked for offline playback. A non-null
+        // cacheKey routes the SDK through its encrypted cache, and for a video
+        // that is merely streaming that means serving whatever partial bytes an
+        // earlier interrupted download left behind — which surfaces as
+        // "Input does not start with the #EXTM3U header". Streaming stays on
+        // plain HTTP, exactly as it did before offline support existed.
+        val offline = creationParams?.get("offline") as? Boolean ?: false
+        val cacheKey = (creationParams?.get("cacheKey") as? String)?.takeIf { offline }
         rootView = LayoutInflater.from(wrappedContext)
             .inflate(R.layout.activity_flutter_bunny_video, null)
 
