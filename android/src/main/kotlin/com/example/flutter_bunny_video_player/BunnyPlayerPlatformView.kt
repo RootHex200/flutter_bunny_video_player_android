@@ -58,6 +58,11 @@ class BunnyVideoPlatformView(
         val referer = creationParams?.get("referer") as? String
         val isPortrait= creationParams?.get("isPortrait") as? Boolean
         val isScreenShotProtectEnable = creationParams?.get("isScreenShotProtectEnable") as? Boolean
+        // Passing this through is what makes offline playback work at all: the
+        // SDK reads the encrypted cache when the key is fully downloaded, and
+        // falls back to stored metadata when the network is gone. Dropping it
+        // here silently turned every play into a streaming play.
+        val cacheKey = creationParams?.get("cacheKey") as? String
         rootView = LayoutInflater.from(wrappedContext)
             .inflate(R.layout.activity_flutter_bunny_video, null)
 
@@ -72,7 +77,13 @@ class BunnyVideoPlatformView(
             fullscreenOffIcon = R.drawable.ic_fullscreen_exit,
         )
         if(token==null && expire==null){
-            videoPlayer.playVideo(videoId!!, libraryId,"")
+            videoPlayer.playVideo(
+                videoId = videoId!!,
+                libraryId = libraryId,
+                videoTitle = "",
+                refererValue = referer,
+                cacheKey = cacheKey,
+            )
         }else{
             videoPlayer.playVideoWithToken(
                 videoId = videoId!!,
@@ -82,8 +93,8 @@ class BunnyVideoPlatformView(
                 videoTitle = "",
                 refererValue =referer,
                 isPortrait = isPortrait!!,
-                isScreenshotProtectionEnabled = isScreenShotProtectEnable!!
-
+                isScreenshotProtectionEnabled = isScreenShotProtectEnable!!,
+                cacheKey = cacheKey,
             );
         }
         //
