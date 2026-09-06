@@ -72,8 +72,8 @@ android {
 }
 
 dependencies {
-    implementation("com.github.RootHex200.bunny-stream-android:bunny-stream-api:3406ce5b96")
-    implementation("com.github.RootHex200.bunny-stream-android:bunny-stream-player:3406ce5b96")
+    implementation("com.github.RootHex200.bunny-stream-android:bunny-stream-api:v1.1.11")
+    implementation("com.github.RootHex200.bunny-stream-android:bunny-stream-player:v1.1.11")
 
     // Explicit rather than transitive: the SDK exposes its offline API behind
     // media3's @UnstableApi, so this module needs the annotation on its own
