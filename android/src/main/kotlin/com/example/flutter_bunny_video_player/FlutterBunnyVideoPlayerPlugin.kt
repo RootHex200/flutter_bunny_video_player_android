@@ -3,16 +3,18 @@ package com.example.flutter_bunny_video_player
 import androidx.activity.ComponentActivity
 import androidx.annotation.NonNull
 
+import androidx.media3.common.util.UnstableApi
 import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.embedding.engine.plugins.activity.ActivityAware
 import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding
-import io.flutter.plugin.common.MethodCall
+import io.flutter.plugin.common.EventChannel
 import io.flutter.plugin.common.MethodChannel
-import io.flutter.plugin.common.MethodChannel.MethodCallHandler
-import io.flutter.plugin.common.MethodChannel.Result
 /** FlutterBunnyVideoPlayerPlugin */
+@UnstableApi
 class FlutterBunnyVideoPlayerPlugin: FlutterPlugin, ActivityAware { // Implement ActivityAware
-  private lateinit var channel: MethodChannel
+  private var downloadMethodChannel: MethodChannel? = null
+  private var downloadEventChannel: EventChannel? = null
+  private var downloadHandler: BunnyDownloadChannelHandler? = null
   private var activity: ComponentActivity? = null // To hold a reference to the host activity
 
   override fun onAttachedToEngine(@NonNull flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
@@ -22,10 +24,30 @@ class FlutterBunnyVideoPlayerPlugin: FlutterPlugin, ActivityAware { // Implement
         "bunny_player_view",
         BunnyPlayerViewFactory()
       )
+
+    // Engine-scoped, not view-scoped: a download outlives the player view that
+    // started it, so a per-view channel would stop reporting the moment the
+    // student left the lesson.
+    val handler = BunnyDownloadChannelHandler(flutterPluginBinding.applicationContext)
+    downloadHandler = handler
+
+    downloadMethodChannel = MethodChannel(
+      flutterPluginBinding.binaryMessenger,
+      BunnyDownloadChannelHandler.METHOD_CHANNEL
+    ).apply { setMethodCallHandler(handler) }
+
+    downloadEventChannel = EventChannel(
+      flutterPluginBinding.binaryMessenger,
+      BunnyDownloadChannelHandler.EVENT_CHANNEL
+    ).apply { setStreamHandler(handler) }
   }
 
   override fun onDetachedFromEngine(@NonNull binding: FlutterPlugin.FlutterPluginBinding) {
-    // channel.setMethodCallHandler(null) // Unset method call handler if used
+    downloadMethodChannel?.setMethodCallHandler(null)
+    downloadMethodChannel = null
+    downloadEventChannel?.setStreamHandler(null)
+    downloadEventChannel = null
+    downloadHandler = null
   }
 
   // --- ActivityAware methods ---
