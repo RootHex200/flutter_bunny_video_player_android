@@ -17,12 +17,16 @@ class BunnyPlayerView extends StatefulWidget {
   final bool isScreenShotProtectEnable;
 
   /// Identifies downloaded content for this video. Pass the same key the
-  /// download was started with; null means stream only.
+  /// download was started with. Only consulted when [offline] is true.
   final String? cacheKey;
 
-  /// Play from the downloaded copy without touching the network. Requires
-  /// [cacheKey]. When true a cache miss surfaces as an error rather than
-  /// silently falling back to streaming.
+  /// Play from the downloaded copy instead of streaming. Requires [cacheKey],
+  /// and that key to have finished downloading — the native player then reads
+  /// the encrypted store and needs no network.
+  ///
+  /// Left false, playback streams over HTTP and ignores [cacheKey] entirely.
+  /// That is deliberate: routing a streaming play through the download cache
+  /// can surface bytes from an interrupted download.
   final bool offline;
 
   const BunnyPlayerView({
